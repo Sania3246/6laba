@@ -1,0 +1,92 @@
+//3вариант.Средний уровень. Создать бинарный файл, компонентами которого является структура содержащая поля:Найменование товара,стоимость товара, единица  измерения. Определить самый дорогой товар на складе и сведенья и нем.
+//3вариант.Высокий уровень.Ввести в Memo или в StringGrid некоторое количество символов русского алфавита и записать их в бинарный файл.Переписать бинарный файл так, чтобы все символы были записаны заглавными буквами. Распечатать символы до и после изменения данных в файле
+#pragma warning(disable : 4996)
+
+#include <cstdio>  
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+
+
+using namespace std;
+
+
+struct Storage {
+    string productName;
+    double productPrice;
+    string productUnits;
+};
+
+void task1() {
+    string namesArray[] = { "Mobile phone","PC","TV","Headphones","Monitor" };
+    string unitsArray[] = { "pieces","boxes" };
+    const int N = 5;
+    Storage* storage = new Storage[N];
+    char fileAdress[] = "storage.bin";
+    for (size_t i = 0; i < N; i++) {
+        cout << (storage[i].productName = namesArray[i]) << "\t" << (storage[i].productPrice = rand() % 1000 * 10) << "\t" << (storage[i].productUnits = unitsArray[rand() % 2]) << endl;
+    }
+    FILE* f_out, * f_in;
+    f_out = fopen(fileAdress, "wb");
+    fwrite(storage, sizeof(Storage), N, f_out);
+    fclose(f_out);
+    delete[] storage;
+    storage = nullptr;
+    cout << "\nRead from file\n" << endl;
+    Storage* newStorage = new Storage[N];
+    f_in = fopen(fileAdress, "rb");
+    fread(newStorage, sizeof(Storage), N, f_in);
+    fclose(f_in);
+    for (size_t i = 0; i < N; i++) {
+        cout << newStorage[i].productName << "\t" << newStorage[i].productPrice << "\t" << newStorage[i].productUnits << endl;
+    }
+    Storage maxPriceProduct = newStorage[0];
+    for (size_t i = 0; i < N; i++) {
+        if (maxPriceProduct.productPrice < newStorage[i].productPrice) {
+            maxPriceProduct = newStorage[i];
+        }
+    }
+    cout << "\nMax price product:" << endl;
+    cout << maxPriceProduct.productName << "\t" << maxPriceProduct.productPrice << "\t" << maxPriceProduct.productUnits << endl;
+}
+
+void task2() {
+    string str;
+    string newStr;
+    string newestStr;
+    cout << "Input some letters:" << endl;
+    cin >> str;
+    ofstream out("task2.txt", ios::out | ios::binary);
+    out << str;
+    out.close();
+    FILE* f;
+    char c;
+    f = fopen("task2.txt", "rb");
+    while ((c = getc(f)) != EOF)
+    {
+        newStr += c;
+    }
+    fclose(f);
+    cout << "Read from file:" << endl;
+    cout <<"Result: " << newStr << endl;
+    std::transform(newStr.begin(), newStr.end(), newStr.begin(), ::toupper);
+    cout << "Insert in file new value"<<endl;
+    out.open("task2.txt", ios::out | ios::binary);
+    out << newStr;
+    out.close();
+    cout << "Read the new value from file" << endl;
+    f = fopen("task2.txt", "rb");
+    while ((c = getc(f)) != EOF)
+    {
+        newestStr += c;
+    }
+    fclose(f);
+    cout << "Result: " << newestStr << endl;;
+}
+
+int main()
+{
+    //task1();
+    task2();
+}
